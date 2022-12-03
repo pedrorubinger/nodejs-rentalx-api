@@ -1,9 +1,9 @@
 import { Repository } from "typeorm"
 
-import AppDataSource from "../../../../database"
-import { ICreateSpecificationDTO } from "../../dtos/ICreateSpecificationDTO"
-import { Specification } from "../../entities/Specification"
-import { ISpecificationsRepository } from "../ISpecificationsRepository"
+import AppDataSource from "../../../../../shared/infra/typeorm"
+import { ICreateSpecificationDTO } from "../../../dtos/ICreateSpecificationDTO"
+import { ISpecificationsRepository } from "../../../repositories/ISpecificationsRepository"
+import { Specification } from "../entities/Specification"
 
 class SpecificationsRepository implements ISpecificationsRepository {
   private repository: Repository<Specification>
