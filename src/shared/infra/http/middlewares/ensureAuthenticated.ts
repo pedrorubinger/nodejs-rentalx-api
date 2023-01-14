@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express"
 import { verify } from "jsonwebtoken"
 import { container } from "tsyringe"
 
-import { IUsersRepository } from "../../../../modules/accounts/repositories/IUsersRepository"
+import auth from "../../../../config/auth"
+import { IUsersTokensRepository } from "../../../../modules/accounts/repositories/IUsersTokensRepository"
 import { AppError } from "../../../errors/AppError"
 
 interface IPayload {
@@ -25,12 +26,16 @@ export async function ensureAuthenticated(
   try {
     const { sub: user_id } = verify(
       token,
-      "e0024a23a35f09a46830486de54cb5f6"
+      auth.secret_refresh_token
     ) as IPayload
 
-    const usersRepository =
-      container.resolve<IUsersRepository>("UsersRepository")
-    const user = await usersRepository.findById(user_id)
+    const usersTokensRepository = container.resolve<IUsersTokensRepository>(
+      "UsersTokensRepository"
+    )
+    const user = await usersTokensRepository.findByUserIdAndRefreshToken(
+      user_id,
+      token
+    )
 
     if (!user) {
       throw new AppError("User does not exist!", 401)
