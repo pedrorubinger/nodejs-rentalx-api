@@ -9,7 +9,7 @@
     "migration:run": "ts-node-dev ./node_modules/typeorm/cli migration:run -d src/shared/infra/typeorm/index.ts",
     "migration:revert": "ts-node-dev ./node_modules/typeorm/cli migration:revert -d src/shared/infra/typeorm/index.ts",
     "seed:admin": "ts-node-dev -r tsconfig-paths/register src/shared/infra/typeorm/seeds/admin.ts",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

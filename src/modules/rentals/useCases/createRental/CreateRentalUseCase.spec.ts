@@ -26,9 +26,19 @@ describe("Create Rental", () => {
   })
 
   it("should be able to create a new rental", async () => {
+    const car = await carsRepositoryInMemory.create({
+      name: "test",
+      description: "test",
+      brand: "test",
+      category_id: "123",
+      license_plate: "123",
+      daily_rate: 100,
+      fine_amount: 10,
+    })
+
     const rental = await createRentalUseCase.execute({
       user_id: "1",
-      car_id: "1",
+      car_id: car.id,
       expected_return_date: dayAdd24Hours,
     })
 
@@ -37,35 +47,35 @@ describe("Create Rental", () => {
   })
 
   it("should not be able to create a new rental if there is another opened to the same user", async () => {
-    expect(async () => {
-      await createRentalUseCase.execute({
-        user_id: "1",
-        car_id: "1",
-        expected_return_date: dayAdd24Hours,
-      })
+    await rentalsRepositoryInMemory.create({
+      car_id: "12345677888",
+      expected_return_date: dayAdd24Hours,
+      user_id: "12345",
+    })
 
-      await createRentalUseCase.execute({
+    await expect(
+      createRentalUseCase.execute({
         user_id: "1",
-        car_id: "1",
+        car_id: "111",
         expected_return_date: dayAdd24Hours,
       })
-    }).rejects.toBeInstanceOf(AppError)
+    ).rejects.toEqual(new AppError("There's a rental in progress for user"))
   })
 
   it("should not be able to create a new rental if there is another opened to the same car", async () => {
-    expect(async () => {
-      await createRentalUseCase.execute({
-        user_id: "1",
-        car_id: "1kskofd",
-        expected_return_date: dayAdd24Hours,
-      })
+    await rentalsRepositoryInMemory.create({
+      car_id: "12345677888",
+      expected_return_date: dayAdd24Hours,
+      user_id: "12345",
+    })
 
+    expect(
       await createRentalUseCase.execute({
         user_id: "2",
-        car_id: "1kskofd",
+        car_id: "12345677888",
         expected_return_date: dayAdd24Hours,
       })
-    }).rejects.toBeInstanceOf(AppError)
+    ).rejects.toEqual(new AppError("Car is unavailable"))
   })
 
   it("should not be able to create a new rental with invalid return time", async () => {
